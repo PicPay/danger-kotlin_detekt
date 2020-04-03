@@ -17,7 +17,7 @@ kotlin_detekt.detekt</pre>
 
 <blockquote>Running KotlinDetekt for a specific severity level and up
   <pre>
-# options are ["warning", "error"]
+# options are ["info", "warning", "error"]
 kotlin_detekt.severity = "error"
 kotlin_detekt.detekt</pre>
 </blockquote>
@@ -36,8 +36,8 @@ Defaults to "detektCheck".
 
 `severity` - Defines the severity level of the execution.
 Selected levels are the chosen one and up.
-Possible values are "Warning", "Error" or "Fatal".
-Defaults to "Warning".
+Possible values are "Info", "Warning" or "Error".
+Defaults to "Info".
 
 `filtering` - Enable filtering
 Only show messages within changed files.

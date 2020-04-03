@@ -22,7 +22,7 @@ module Danger
   # @tags danger, detekt, kotlin
   #
   class DangerKotlinDetekt < Plugin
-    SEVERITY_LEVELS = %w(warning error).freeze
+    SEVERITY_LEVELS = %w(info warning error).freeze
 
     # Location of Detekt report file
     # If your Detekt task outputs to a different location, you can specify it here.
@@ -43,7 +43,7 @@ module Danger
 
     # Defines the severity level of the execution.
     # Selected levels are the chosen one and up.
-    # Possible values are "Warning", "Error" or "Fatal".
+    # Possible values are "Info", "Warning" or "Error".
     # Defaults to "Warning".
     # @return [String]
     attr_writer :severity
@@ -91,7 +91,7 @@ module Danger
       end
     end
 
-    # A getter for `severity`, returning "warning" if value is nil.
+    # A getter for `severity`, returning "info" if value is nil.
     # @return [String]
     def severity
       @severity || SEVERITY_LEVELS.first
