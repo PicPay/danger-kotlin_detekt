@@ -24,6 +24,8 @@ module Danger
   class DangerKotlinDetekt < Plugin
     SEVERITY_LEVELS = %w(info warning error).freeze
 
+    TREATMENT_MODE = %w(severity warn fail).freeze
+
     # Location of Detekt report file
     # If your Detekt task outputs to a different location, you can specify it here.
     # Defaults to "build/reports/detekt/detekt-checkstyle.xml".
@@ -55,6 +57,12 @@ module Danger
     # Skip gradle task
     attr_accessor :skip_gradle_task
 
+    # Defines the treatment mode of the execution.
+    # Possible values are "Severity", "Warn" or "Fail".
+    # Defaults to "Severity".
+    # @return [String]
+    attr_accessor :treatment
+
     # Calls Detekt task of your gradle project.
     # It fails if `gradlew` cannot be found inside current directory.
     # It fails if `severity` level is not a valid option.
@@ -69,6 +77,11 @@ module Danger
 
       unless SEVERITY_LEVELS.include?(severity)
         fail("'#{severity}' is not a valid value for `severity` parameter.")
+        return
+      end
+
+      unless TREATMENT_MODE.include?(treatment)
+        fail("'#{treatment}' is not a valid value for `treatment` parameter.")
         return
       end
 
@@ -95,6 +108,12 @@ module Danger
     # @return [String]
     def severity
       @severity || SEVERITY_LEVELS.first
+    end
+
+    # A getter for `treatment`, returning "severity" if value is nil.
+    # @return [String]
+    def treatment
+      @treatment || TREATMENT_MODE.first
     end
 
     private
@@ -168,7 +187,22 @@ module Danger
           filename = location.get("name").gsub(dir, "")
           next unless !filtering || (target_files.include? filename)
           line = (r.get("line") || "0").to_i
-          send(level == "warning" ? "warn" : "fail", r.get("message"), file: filename, line: line)
+          message = r.get("message")
+          case treatment
+          when "severity"
+            case level
+            when "info"
+              message(message, file: filename, line: line)
+            when "warning"
+              warn(message, file: filename, line: line)
+            when "error"
+              fail(message, file: filename, line: line)
+            end
+          when "warn"
+            warn(message, file: filename, line: line)
+          when "fail"
+            fail(message, file: filename, line: line)
+          end
         end
       end
     end
