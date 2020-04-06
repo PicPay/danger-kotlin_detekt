@@ -191,9 +191,7 @@ module Danger
           case treatment
           when "severity"
             case level
-            when "info"
-              message(message, file: filename, line: line)
-            when "warning"
+            when "info", "warning"
               warn(message, file: filename, line: line)
             when "error"
               fail(message, file: filename, line: line)
