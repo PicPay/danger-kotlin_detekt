@@ -22,6 +22,13 @@ kotlin_detekt.severity = "error"
 kotlin_detekt.detekt</pre>
 </blockquote>
 
+<blockquote>Failing the execution for any KotlinDetekt issue
+  <pre>
+# options are ["severity", "warn", "fail"]
+kotlin_detekt.treatment = "fail"
+kotlin_detekt.detekt</pre>
+</blockquote>
+
 
 
 #### Attributes
@@ -39,6 +46,16 @@ Selected levels are the chosen one and up.
 Possible values are "Info", "Warning" or "Error".
 Defaults to "Info".
 
+`treatment` - Defines how issues will be treated by Danger.
+Possible values are "Severity", "Warn" or "Fail".
+Defaults to "Severity".
+
+The "Severity" mode treats issues as follow:
+| Detekt | Danger |
+|---|---|
+| info, warning | warn() |
+| error | fail() |
+
 `filtering` - Enable filtering
 Only show messages within changed files.
 
@@ -52,4 +69,5 @@ Only show messages within changed files.
 `detekt` - Calls Detekt task of your gradle project.
 It fails if `gradlew` cannot be found inside current directory.
 It fails if `severity` level is not a valid option.
+It fails if `treatment` mode is not a valid option.
 It fails if `xmlReport` configuration is not set to `true` in your `build.gradle` file.
