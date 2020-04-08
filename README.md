@@ -50,7 +50,6 @@ Defaults to "info".
 Selected levels are the chosen one and up.
 Possible values are "info", "warning" or "error".
 Defaults to "error".
-
 **Important:** `fail_level` must be greater than or equals to `comment_level`, otherwise `comment_level` will be picked as `fail_level`.
 
 `filtering` - Enable filtering
