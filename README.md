@@ -11,7 +11,7 @@ kotlin_detekt.detekt</pre>
 
 <blockquote>Running KotlinDetekt with a specific gradle task
   <pre>
-kotlin_detekt.gradle_task = "detektCheckMyFlavorDebug"
+kotlin_detekt.gradle_task = "detektMyFlavorDebug"
 kotlin_detekt.detekt</pre>
 </blockquote>
 
@@ -35,11 +35,11 @@ kotlin_detekt.detekt</pre>
 
 `report_file` - Location of Detekt report file
 If your Detekt task outputs to a different location, you can specify it here.
-Defaults to "build/reports/detekt/detekt-checkstyle.xml".
+Defaults to "build/reports/detekt/detekt.xml".
 
 `gradle_task` - Custom gradle task to run.
 This is useful when your project has different flavors.
-Defaults to "detektCheck".
+Defaults to "detekt".
 
 `comment_level` - Defines the comment level of the execution.
 Selected levels are the chosen one and up.

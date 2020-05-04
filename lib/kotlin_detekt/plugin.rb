@@ -9,7 +9,7 @@ module Danger
   #
   # @example Running KotlinDetekt with a specific gradle task
   #
-  #          kotlin_detekt.gradle_task = "detektCheckMyFlavorDebug"
+  #          kotlin_detekt.gradle_task = "detektMyFlavorDebug"
   #          kotlin_detekt.detekt
   #
   # @example Running KotlinDetekt with comments for a specific severity level and up
@@ -32,18 +32,18 @@ module Danger
 
     # Location of Detekt report file
     # If your Detekt task outputs to a different location, you can specify it here.
-    # Defaults to "build/reports/detekt/detekt-checkstyle.xml".
+    # Defaults to "build/reports/detekt/detekt.xml".
     # @return [String]
     attr_accessor :report_file
     # A getter for `report_file`.
     # @return [String]
     def report_file
-      return @report_file || "build/reports/detekt/detekt-checkstyle.xml"
+      return @report_file || "build/reports/detekt/detekt.xml"
     end
 
     # Custom gradle task to run.
     # This is useful when your project has different flavors.
-    # Defaults to "detektCheck".
+    # Defaults to "detekt".
     # @return [String]
     attr_accessor :gradle_task
 
@@ -93,7 +93,7 @@ module Danger
         fail_level = [fail_level, comment_level].max
       end
 
-      system "./gradlew #{gradle_task || 'detektCheck'}" unless skip_gradle_task
+      system "./gradlew #{gradle_task || 'detekt'}" unless skip_gradle_task
 
       unless File.exist?(report_file)
         fail("Detekt report not found at `#{report_file}`. "\
