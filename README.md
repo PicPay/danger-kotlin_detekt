@@ -15,10 +15,17 @@ kotlin_detekt.gradle_task = "detektCheckMyFlavorDebug"
 kotlin_detekt.detekt</pre>
 </blockquote>
 
-<blockquote>Running KotlinDetekt for a specific severity level and up
+<blockquote>Running KotlinDetekt with comments for a specific severity level and up
   <pre>
 # options are ["info", "warning", "error"]
-kotlin_detekt.severity = "error"
+kotlin_detekt.comment_level = "warning"
+kotlin_detekt.detekt</pre>
+</blockquote>
+
+<blockquote>Running KotlinDetekt with failures for a specific severity level and up
+  <pre>
+# options are ["info", "warning", "error"]
+kotlin_detekt.fail_level = "warning"
 kotlin_detekt.detekt</pre>
 </blockquote>
 
@@ -34,10 +41,16 @@ Defaults to "build/reports/detekt/detekt-checkstyle.xml".
 This is useful when your project has different flavors.
 Defaults to "detektCheck".
 
-`severity` - Defines the severity level of the execution.
+`comment_level` - Defines the comment level of the execution.
 Selected levels are the chosen one and up.
-Possible values are "Info", "Warning" or "Error".
-Defaults to "Info".
+Possible values are "info", "warning" or "error".
+Defaults to "info".
+
+`fail_level` - Defines the fail level of the execution.
+Selected levels are the chosen one and up.
+Possible values are "info", "warning" or "error".
+Defaults to "error".
+**Important:** `fail_level` must be greater than or equals to `comment_level`, otherwise `comment_level` will be picked as `fail_level`.
 
 `filtering` - Enable filtering
 Only show messages within changed files.
@@ -46,10 +59,10 @@ Only show messages within changed files.
 
 
 
-
 #### Methods
 
 `detekt` - Calls Detekt task of your gradle project.
 It fails if `gradlew` cannot be found inside current directory.
-It fails if `severity` level is not a valid option.
+It fails if `comment_level` level is not a valid option.
+It fails if `fail_level` level is not a valid option.
 It fails if `xmlReport` configuration is not set to `true` in your `build.gradle` file.

@@ -12,10 +12,16 @@ module Danger
   #          kotlin_detekt.gradle_task = "detektCheckMyFlavorDebug"
   #          kotlin_detekt.detekt
   #
-  # @example Running KotlinDetekt for a specific severity level and up
+  # @example Running KotlinDetekt with comments for a specific severity level and up
   #
-  #          # options are ["warning", "error"]
-  #          kotlin_detekt.severity = "error"
+  #          # options are ["info", "warning", "error"]
+  #          kotlin_detekt.comment_level = "warning"
+  #          kotlin_detekt.detekt
+  #
+  # @example Running KotlinDetekt with failures for a specific severity level and up
+  #
+  #          # options are ["info", "warning", "error"]
+  #          kotlin_detekt.fail_level = "warning"
   #          kotlin_detekt.detekt
   #
   # @see  NFesquet/danger-kotlin_detekt
@@ -41,12 +47,19 @@ module Danger
     # @return [String]
     attr_accessor :gradle_task
 
-    # Defines the severity level of the execution.
+    # Defines the comment level of the execution.
     # Selected levels are the chosen one and up.
-    # Possible values are "Info", "Warning" or "Error".
-    # Defaults to "Warning".
+    # Possible values are "info", "warning" or "error".
+    # Defaults to "info".
     # @return [String]
-    attr_writer :severity
+    attr_writer :comment_level
+
+    # Defines the fail level of the execution.
+    # Selected levels are the chosen one and up.
+    # Possible values are "info", "warning" or "error".
+    # Defaults to "error".
+    # @return [String]
+    attr_writer :fail_level
 
     # Enable filtering
     # Only show messages within changed files.
@@ -57,7 +70,8 @@ module Danger
 
     # Calls Detekt task of your gradle project.
     # It fails if `gradlew` cannot be found inside current directory.
-    # It fails if `severity` level is not a valid option.
+    # It fails if `comment_level` level is not a valid option.
+    # It fails if `fail_level` level is not a valid option.
     # It fails if `xmlReport` configuration is not set to `true` in your `build.gradle` file.
     # @return [void]
     #
@@ -67,9 +81,16 @@ module Danger
         return
       end
 
-      unless SEVERITY_LEVELS.include?(severity)
-        fail("'#{severity}' is not a valid value for `severity` parameter.")
+      unless SEVERITY_LEVELS.include?(comment_level)
+        fail("'#{comment_level}' is not a valid value for `comment_level` parameter.")
         return
+      end
+
+      unless SEVERITY_LEVELS.include?(fail_level)
+        fail("'#{fail_level}' is not a valid value for `fail_level` parameter.")
+        return
+
+        fail_level = [fail_level, comment_level].max
       end
 
       system "./gradlew #{gradle_task || 'detektCheck'}" unless skip_gradle_task
@@ -80,7 +101,7 @@ module Danger
       end
 
       issues = read_issues_from_report
-      filtered_issues = filter_issues_by_severity(issues)
+      filtered_issues = filter_issues_by_severity(issues, comment_level)
 
       if inline_mode
         # Report with inline comment
@@ -91,10 +112,16 @@ module Danger
       end
     end
 
-    # A getter for `severity`, returning "info" if value is nil.
+    # A getter for `comment_level`, returning "info" if value is nil.
     # @return [String]
-    def severity
-      @severity || SEVERITY_LEVELS.first
+    def comment_level
+      @comment_level || SEVERITY_LEVELS.first
+    end
+
+    # A getter for `fail_level`, returning "error" if value is nil.
+    # @return [String]
+    def fail_level
+      @fail_level || SEVERITY_LEVELS.last
     end
 
     private
@@ -108,7 +135,7 @@ module Danger
       report.xpath("//error")
     end
 
-    def filter_issues_by_severity(issues)
+    def filter_issues_by_severity(issues, severity)
       issues.select do |issue|
         severity_index(issue.get("severity")) >= severity_index(severity)
       end
@@ -160,15 +187,17 @@ module Danger
     def send_inline_comment(issues)
       target_files = (git.modified_files - git.deleted_files) + git.added_files
       dir = "#{Dir.pwd}/"
-      SEVERITY_LEVELS.reverse.each do |level|
-        filtered = issues.select { |issue| issue.get("severity") == level }
-        next if filtered.empty?
-        filtered.each do |r|
-          location = r.parent
-          filename = location.get("name").gsub(dir, "")
-          next unless !filtering || (target_files.include? filename)
-          line = (r.get("line") || "0").to_i
-          send(level == "warning" ? "warn" : "fail", r.get("message"), file: filename, line: line)
+      issues.each do |issue|
+        location = issue.parent
+        filename = location.get("name").gsub(dir, "")
+        next unless !filtering || (target_files.include? filename)
+        line = (issue.get("line") || "0").to_i
+        message = issue.get("message")
+        severity = issue.get("severity")
+        if severity_index(severity) >= severity_index(fail_level)
+          fail(message, file: filename, line: line)
+        elsif severity_index(severity) >= severity_index(comment_level)
+          warn(message, file: filename, line: line)
         end
       end
     end
