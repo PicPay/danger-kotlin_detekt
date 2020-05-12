@@ -154,7 +154,7 @@ module Danger
       message
     end
 
-    # Send inline comment with danger's warn or fail method
+    # Send inline comment with danger's fail method
     #
     # @return [void]
     def send_inline_comment(issues)
@@ -168,7 +168,7 @@ module Danger
           filename = location.get("name").gsub(dir, "")
           next unless !filtering || (target_files.include? filename)
           line = (r.get("line") || "0").to_i
-          send(level == "warning" ? "warn" : "fail", r.get("message"), file: filename, line: line)
+          fail(r.get("message"), file: filename, line: line)
         end
       end
     end
